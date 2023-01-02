@@ -1,0 +1,159 @@
+[gd_scene load_steps=10 format=2]
+
+[ext_resource path="res://AgentManager.tscn" type="PackedScene" id=1]
+[ext_resource path="res://World.gd" type="Script" id=2]
+[ext_resource path="res://FoodButton.gd" type="Script" id=3]
+[ext_resource path="res://spawnAgentButton.gd" type="Script" id=4]
+[ext_resource path="res://FoodManager.tscn" type="PackedScene" id=5]
+[ext_resource path="res://show_options.gd" type="Script" id=6]
+[ext_resource path="res://view.gd" type="Script" id=7]
+[ext_resource path="res://Agent.tscn" type="PackedScene" id=8]
+[ext_resource path="res://Button3.gd" type="Script" id=9]
+
+[node name="World" type="Node"]
+script = ExtResource( 2 )
+
+[node name="grass" type="Polygon2D" parent="."]
+position = Vector2( 32, -16 )
+color = Color( 0.196078, 0.388235, 0.2, 1 )
+polygon = PoolVector2Array( 3808, 2176, 3808, 16, -32, 16, -32, 2176 )
+
+[node name="WorldBorder" type="StaticBody2D" parent="."]
+
+[node name="CollisionPolygon2D" type="CollisionPolygon2D" parent="WorldBorder"]
+position = Vector2( 0, 8 )
+scale = Vector2( 1.0026, 1.03365 )
+polygon = PoolVector2Array( 0, -7.73956, 3830.04, -7.73956, 3830.04, 2081.94, 0, 2081.94, 0, -7.73956, -63.834, -69.6561, -63.834, 2143.86, 3893.88, 2143.86, 3893.88, -69.6561, 47.8755, -69.6561, -63.834, -69.6561 )
+
+[node name="Main_HUD" type="CanvasLayer" parent="."]
+
+[node name="HUD" type="Control" parent="Main_HUD"]
+margin_left = 960.0
+margin_top = 544.0
+margin_right = 960.0
+margin_bottom = 544.0
+
+[node name="Button" type="Button" parent="Main_HUD/HUD"]
+margin_left = 584.0
+margin_top = 448.0
+margin_right = 912.0
+margin_bottom = 504.0
+text = "OPTIONS"
+script = ExtResource( 6 )
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="right_menu" type="ColorRect" parent="Main_HUD/HUD"]
+margin_left = 584.0
+margin_top = -504.0
+margin_right = 912.0
+margin_bottom = 432.0
+color = Color( 0.0901961, 0.0862745, 0.0862745, 0.4 )
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="Tween" type="Tween" parent="Main_HUD/HUD/right_menu"]
+
+[node name="SystemStats" type="MarginContainer" parent="Main_HUD/HUD/right_menu"]
+anchor_right = 0.019
+anchor_bottom = 1.0
+margin_left = 16.0
+margin_top = 240.0
+margin_right = 305.768
+margin_bottom = -24.0
+
+[node name="TextOutput" type="RichTextLabel" parent="Main_HUD/HUD/right_menu/SystemStats"]
+margin_right = 296.0
+margin_bottom = 672.0
+size_flags_horizontal = 3
+size_flags_vertical = 3
+
+[node name="GridContainer" type="GridContainer" parent="Main_HUD/HUD/right_menu"]
+margin_left = 16.0
+margin_top = 8.0
+margin_right = 312.0
+margin_bottom = 168.0
+grow_horizontal = 0
+
+[node name="Button" type="Button" parent="Main_HUD/HUD/right_menu/GridContainer"]
+margin_right = 296.0
+margin_bottom = 51.0
+size_flags_horizontal = 3
+size_flags_vertical = 3
+text = "Spawn New Agent"
+script = ExtResource( 4 )
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="HBoxContainer" type="HBoxContainer" parent="Main_HUD/HUD/right_menu/GridContainer"]
+margin_top = 55.0
+margin_right = 296.0
+margin_bottom = 106.0
+size_flags_vertical = 3
+
+[node name="Button2" type="Button" parent="Main_HUD/HUD/right_menu/GridContainer/HBoxContainer"]
+margin_right = 146.0
+margin_bottom = 51.0
+size_flags_horizontal = 3
+size_flags_vertical = 3
+text = "Spawn New Food"
+script = ExtResource( 3 )
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="FoodNum" type="TextEdit" parent="Main_HUD/HUD/right_menu/GridContainer/HBoxContainer"]
+margin_left = 150.0
+margin_right = 296.0
+margin_bottom = 51.0
+size_flags_horizontal = 3
+size_flags_vertical = 3
+text = "1"
+
+[node name="Button3" type="Button" parent="Main_HUD/HUD/right_menu/GridContainer"]
+margin_top = 110.0
+margin_right = 296.0
+margin_bottom = 160.0
+size_flags_horizontal = 3
+size_flags_vertical = 3
+text = "Disconnect Camera"
+script = ExtResource( 9 )
+__meta__ = {
+"_edit_use_anchors_": false
+}
+
+[node name="AgentManager" parent="." instance=ExtResource( 1 )]
+Agent = ExtResource( 8 )
+
+[node name="FoodManager" parent="." instance=ExtResource( 5 )]
+position = Vector2( 0, -2.66968 )
+
+[node name="view" type="Node2D" parent="."]
+script = ExtResource( 7 )
+
+[node name="Camera2D" type="Camera2D" parent="view"]
+position = Vector2( 1096, 808 )
+current = true
+zoom = Vector2( 1.602, 1.699 )
+limit_left = -500
+limit_top = -500
+limit_right = 5000
+limit_bottom = 3000
+limit_smoothed = true
+drag_margin_h_enabled = true
+drag_margin_v_enabled = true
+smoothing_enabled = true
+smoothing_speed = 20.0
+drag_margin_left = 0.95
+drag_margin_top = 0.95
+drag_margin_right = 0.95
+drag_margin_bottom = 0.95
+
+[connection signal="pressed" from="Main_HUD/HUD/Button" to="Main_HUD/HUD/Button" method="_on_Button_pressed"]
+[connection signal="toggled" from="Main_HUD/HUD/Button" to="Main_HUD/HUD/Button" method="_on_Button_toggled"]
+[connection signal="pressed" from="Main_HUD/HUD/right_menu/GridContainer/Button" to="Main_HUD/HUD/right_menu/GridContainer/Button" method="_on_Button_pressed"]
+[connection signal="pressed" from="Main_HUD/HUD/right_menu/GridContainer/HBoxContainer/Button2" to="Main_HUD/HUD/right_menu/GridContainer/HBoxContainer/Button2" method="_on_Button2_pressed"]
+[connection signal="pressed" from="Main_HUD/HUD/right_menu/GridContainer/Button3" to="Main_HUD/HUD/right_menu/GridContainer/Button3" method="_on_Button3_pressed"]
