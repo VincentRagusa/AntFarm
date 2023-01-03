@@ -96,10 +96,10 @@ func make_from_genome(genome: Genome):
 	for g in range(OUTPUT_SIZE + RECURRENT_SIZE):
 		var newGate = []
 		#add input wires
-		newGate.append(genome.get_value(INPUT_SIZE + RECURRENT_SIZE))
-		newGate.append(genome.get_value(INPUT_SIZE + RECURRENT_SIZE))
+		newGate.append(genome.get_value(0,(INPUT_SIZE + RECURRENT_SIZE)-1))
+		newGate.append(genome.get_value(0,(INPUT_SIZE + RECURRENT_SIZE)-1))
 		#add logic table
-		newGate.append(genome.get_value(16+1))
+		newGate.append(genome.get_value(0,(16+1)-1))
 		gates.append(newGate)
 		
 func update():

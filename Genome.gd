@@ -2,8 +2,8 @@ extends Node2D
 class_name Genome
 
 # Declare member variables here. Examples:
-var GENOME_LENGTH = (13+7+8)*2 + 7
-var MUTATION_RATE = 0.005
+var GENOME_LENGTH = 25#(13+7+8)*3+2
+var MUTATION_RATE = 1.0/50.0 #0.005
 var sites = [0]
 var readHead = 0
 
@@ -40,8 +40,9 @@ func make_mutated_copy():
 	return newSites
 
 
-func get_value(maxInt):
-	var result = sites[readHead] % maxInt
+func get_value(minVal:int, maxVal:int) -> int:
+	var valRange = maxVal - minVal
+	var result = minVal + sites[readHead] % (valRange+1)
 	readHead = (readHead + 1) % GENOME_LENGTH
 	return result
 	
