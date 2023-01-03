@@ -135,6 +135,16 @@ text = "110011110011
 align = 1
 valign = 1
 
+[node name="DangerSpike" type="Area2D" parent="."]
+
+[node name="SpikeVisual" type="Polygon2D" parent="DangerSpike"]
+color = Color( 0.184314, 0.619608, 0.262745, 1 )
+polygon = PoolVector2Array( -4, -20, 0, -64, 4, -20 )
+
+[node name="SpikeArea" type="CollisionPolygon2D" parent="DangerSpike"]
+position = Vector2( 0, 20 )
+polygon = PoolVector2Array( 0, -84, -1, -76, 1, -76 )
+
 [connection signal="timeout" from="FoodUseTimer" to="." method="_on_FoodUseTimer_timeout"]
 [connection signal="body_entered" from="TouchSensor_N" to="." method="_on_TouchSensor_N_body_entered"]
 [connection signal="body_exited" from="TouchSensor_N" to="." method="_on_TouchSensor_N_body_exited"]
@@ -153,3 +163,4 @@ valign = 1
 [connection signal="mouse_entered" from="mouse_click_region" to="." method="_on_TextureButton_mouse_entered"]
 [connection signal="mouse_exited" from="mouse_click_region" to="." method="_on_TextureButton_mouse_exited"]
 [connection signal="pressed" from="mouse_click_region" to="." method="_on_TextureButton_pressed"]
+[connection signal="body_entered" from="DangerSpike" to="." method="_on_DangerSpike_body_entered"]

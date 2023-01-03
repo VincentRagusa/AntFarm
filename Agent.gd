@@ -2,10 +2,10 @@ extends KinematicBody2D
 class_name Agent
 
 # Declare member variables here. Examples:
-var MAX_SPEED = 250
-var ROTATION_SPEED = 5
-var ACCELERATION = 500
-var motion = Vector2.ZERO
+var MAX_SPEED:float = 200
+var ROTATION_SPEED:float = 6
+var ACCELERATION:float = 400
+var motion:Vector2 = Vector2.ZERO
 
 
 onready var Genome = $Genome
@@ -20,28 +20,34 @@ onready var debugConeTouch_E = $debugVisionCones/Touch_E
 onready var debugConeTouch_S = $debugVisionCones/Touch_S
 onready var debugConeTouch_W = $debugVisionCones/Touch_W
 onready var debugBrainVisual = $debugBrainVis/Label
+onready var dangerSpikeArea:Area2D = $DangerSpike/
 
 #INPUT SIGNAL BUFFER
-var touching_N = 0
-var touching_E = 0
-var touching_S = 0
-var touching_W = 0
-var sees_agent = 0
-var sees_food = 0
-var sees_agent_PL = 0
-var sees_food_PL = 0
-var sees_agent_PR = 0
-var sees_food_PR = 0
-var food_level = 25
-var food_collected = 0 #bool
+var touching_N:int = 0
+var touching_E:int = 0
+var touching_S:int = 0
+var touching_W:int = 0
+var sees_agent:int = 0
+var sees_food:int = 0
+var sees_agent_PL:int = 0
+var sees_food_PL:int = 0
+var sees_agent_PR:int = 0
+var sees_food_PR:int = 0
+var food_level:int = 25
+var food_collision:bool = 0
+var spike_collision:bool = 0
+var was_attacked:bool = 0
 #-------------------
 # data tracking vars
-var food_eaten_tracker = 0
-var children_had_tracker = 0
+var food_eaten_tracker:int = 0
+var children_had_tracker:int = 0
 
 # fuzzy logic variables
 var intensity:float = -1
 var evolvedHungerThreshold:int = -1
+
+#body state variables
+var spike_extended:bool = false
 
 
 # Called when the node enters the scene tree for the first time.
@@ -51,6 +57,7 @@ func _ready():
 func myRound(val:float,decLen:int)->float:
 	return float(int(val*10*decLen))/(decLen*10)
 
+#TODO: this should probably be a signal that is processed at the text node
 func updateDebugText(inputs,outputs,hiddens):
 	debugBrainVisual.text = ""
 	for i in inputs:
@@ -64,7 +71,8 @@ func updateDebugText(inputs,outputs,hiddens):
 	
 	
 	
-	
+#TODO: the data for set_input could be passed as a signal,
+#      and the output from the brain could be received as one. (is this good?)
 func _physics_process(delta):
 	#tank controls version
 	Brain.set_input(0,min(touching_N/intensity,1.0))
@@ -79,24 +87,29 @@ func _physics_process(delta):
 	Brain.set_input(9,min(sees_food_PR/intensity,1.0))
 	Brain.set_input(10,int(food_level>60))#able to repro
 	Brain.set_input(11,int(food_level<evolvedHungerThreshold))#close to death
-	Brain.set_input(12,food_collected)
-	food_collected = 0 #only send input once
+	Brain.set_input(12,food_collision)
+	Brain.set_input(13,spike_collision)
+	Brain.set_input(14,was_attacked)
+	food_collision = 0 #only send input once
+	spike_collision = 0
+	was_attacked = 0
+	
 	Brain.update()
 	
-	var holdinputs = []
+	var holdinputs:Array = []
 	for i in range(Brain.get_size()[0]):
 		holdinputs.append(Brain.get_input(i))
-	var holdoutputs = []
+	var holdoutputs:Array = []
 	for i in range(Brain.get_size()[1]):
 		holdoutputs.append(Brain.get_output(i))
 	updateDebugText(holdinputs, holdoutputs, Brain.get_newHidden())
 	
 	#handle movment
-	var L = Brain.get_output(0)
-	var R = Brain.get_output(1)
-	var axis = Vector2.ZERO
+	var L:float = Brain.get_output(0)
+	var R:float = Brain.get_output(1)
+	var axis:Vector2 = Vector2.ZERO
 	
-	var rotation_dir = R-L
+	var rotation_dir:float = R-L
 	axis.y = abs(rotation_dir)-1
 	
 	rotation += rotation_dir * ROTATION_SPEED * delta
@@ -109,32 +122,41 @@ func _physics_process(delta):
 	
 	
 	#handle reproduction
-	if food_level > 60 and Brain.get_output(2)>=(2/3):
+	if food_level > 60 and Brain.get_output(2)>=(2.0/3.0):
 		GlobalSignals.emit_signal("agent_born", self)
 		children_had_tracker += 1
 		food_level -= 35 #60 -> 25 + 25 + 10 (each agent is reset, 10 lost to entropy)
+		
+	if Brain.get_output(3) >= (2.0/3.0):
+		spike_extended = true
+		dangerSpikeArea.visible = true
+	else:
+		spike_extended = false
+		dangerSpikeArea.visible = false
 	
-func get_input_axis(right,left,down,up):
-	var axis = Vector2.ZERO
+	
+	
+func get_input_axis(right:float,left:float,down:float,up:float)->Vector2:
+	var axis:Vector2 = Vector2.ZERO
 	axis.x = right - left
 	axis.y = down - up # y+ is down in this coordinate system
 	return axis.normalized()
 	
 	
 	
-func apply_friction(amount):
-	if motion.length() > amount:
-		motion -= motion.normalized()*amount
+func apply_friction(speed:float):
+	if motion.length() > speed:
+		motion -= motion.normalized()*speed/3
 	else:
 		motion = Vector2.ZERO
 
 
-func apply_movement(acc):
+func apply_movement(acc:Vector2):
 	motion += acc
 	motion = motion.clamped(MAX_SPEED)
 
 
-func get_mutated_genome():
+func get_mutated_genome()->Array:
 	var newGenome = Genome.make_mutated_copy()
 	return newGenome
 
@@ -279,6 +301,14 @@ func _on_TouchSensor_W_body_entered(body):
 func _on_TouchSensor_W_body_exited(body):
 	touching_W -= 1
 	debugConeTouch_W.color.b = min(touching_W/intensity,1.0)
+
+
+func _on_DangerSpike_body_entered(body):
+	if spike_extended and body.is_in_group("Agent"):
+		spike_collision = true
+		food_level += 10 #loss of 5
+		body.food_level -= 15
+		body.was_attacked = 1 #bool
 
 #complex movenment backup
 #func _physics_process(delta):

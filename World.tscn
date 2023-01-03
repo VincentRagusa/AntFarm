@@ -111,7 +111,7 @@ margin_right = 296.0
 margin_bottom = 51.0
 size_flags_horizontal = 3
 size_flags_vertical = 3
-text = "1"
+text = "100"
 
 [node name="Button3" type="Button" parent="Main_HUD/HUD/right_menu/GridContainer"]
 margin_top = 110.0
