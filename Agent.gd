@@ -40,8 +40,8 @@ var food_eaten_tracker = 0
 var children_had_tracker = 0
 
 # fuzzy logic variables
-var intensity = null
-var evolvedHungerThreshold = null
+var intensity:float = -1
+var evolvedHungerThreshold:int = -1
 
 
 # Called when the node enters the scene tree for the first time.
