@@ -141,15 +141,15 @@ func get_mutated_genome():
 
 func on_birth(newGenome):
 	Genome.set_genome(newGenome)
-	intensity = Genome.get_value(9)+1 #minimum 1
-	evolvedHungerThreshold = Genome.get_value(120)
+	intensity = Genome.get_value(1,10)
+	evolvedHungerThreshold = Genome.get_value(1,59)
 	Brain.make_from_genome(Genome)
 
 
 func on_spawn():
 	Genome.randomize_genome()
-	intensity = Genome.get_value(9)+1 #minimum 1
-	evolvedHungerThreshold = Genome.get_value(120)
+	intensity = Genome.get_value(1,10)
+	evolvedHungerThreshold = Genome.get_value(1,59)
 	Brain.make_from_genome(Genome)
 
 
