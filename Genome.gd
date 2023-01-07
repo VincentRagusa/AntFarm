@@ -17,7 +17,7 @@ func randomize_genome():
 	var rng = RandomNumberGenerator.new()
 	rng.randomize()
 	sites = []
-	for i in range(GENOME_LENGTH):
+	for _i in range(GENOME_LENGTH):
 		sites.append(rng.randi_range(0,255))
 
 
@@ -32,12 +32,15 @@ func make_mutated_copy()->Array:
 	for i in range(GENOME_LENGTH): #TODO this is terribly inefficient
 		if rng.randf() <= MUTATION_RATE:
 			var choice = rng.randi_range(0,2)
-			if  choice == 0:
+			if  choice == 0:#point offset
 				newSites[i] += rng.randi_range(-5,5) #uniform offset mutation
-				newSites[i] %= 255
-			elif choice == 1:
+				while newSites[i] > 255:
+					newSites[i] -= 256
+				while newSites[i] < 0:
+					newSites[i] += 256
+			elif choice == 1:#point random
 				newSites[i] = rng.randi_range(0,255)
-			elif choice == 2:
+			elif choice == 2: #copy (insert-delete)
 				var from:int = rng.randi_range(0,GENOME_LENGTH-1)
 				var length:int = rng.randi_range(1,GENOME_LENGTH)
 				var to:int = rng.randi_range(0,GENOME_LENGTH-1)

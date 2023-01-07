@@ -118,7 +118,7 @@ func _physics_process(delta):
 		apply_friction(ACCELERATION * delta)
 	else:
 		apply_movement(axis* ACCELERATION * delta)
-	move_and_slide(motion.rotated(rotation)) #does not carry over
+	var _trash = move_and_slide(motion.rotated(rotation)) #does not carry over
 	
 	
 	#handle reproduction
@@ -153,7 +153,7 @@ func apply_friction(speed:float):
 
 func apply_movement(acc:Vector2):
 	motion += acc
-	motion = motion.clamped(MAX_SPEED)
+	motion = motion.limit_length(MAX_SPEED)
 
 
 func get_mutated_genome()->Array:
@@ -263,42 +263,42 @@ func _on_TextureButton_mouse_exited():
 
 
 
-func _on_TouchSensor_N_body_entered(body):
+func _on_TouchSensor_N_body_entered(_body):
 	touching_N += 1
 	debugConeTouch_N.color.b = min(touching_N/intensity,1.0)
 
 
-func _on_TouchSensor_N_body_exited(body):
+func _on_TouchSensor_N_body_exited(_body):
 	touching_N -= 1
 	debugConeTouch_N.color.b = min(touching_N/intensity,1.0)
 
 
-func _on_TouchSensor_E_body_entered(body):
+func _on_TouchSensor_E_body_entered(_body):
 	touching_E += 1
 	debugConeTouch_E.color.b = min(touching_E/intensity,1.0)
 
 
-func _on_TouchSensor_E_body_exited(body):
+func _on_TouchSensor_E_body_exited(_body):
 	touching_E -= 1
 	debugConeTouch_E.color.b = min(touching_E/intensity,1.0)
 
 
-func _on_TouchSensor_S_body_entered(body):
+func _on_TouchSensor_S_body_entered(_body):
 	touching_S += 1
 	debugConeTouch_S.color.b = min(touching_S/intensity,1.0)
 
 
-func _on_TouchSensor_S_body_exited(body):
+func _on_TouchSensor_S_body_exited(_body):
 	touching_S -= 1
 	debugConeTouch_S.color.b = min(touching_S/intensity,1.0)
 
 
-func _on_TouchSensor_W_body_entered(body):
+func _on_TouchSensor_W_body_entered(_body):
 	touching_W += 1
 	debugConeTouch_W.color.b = min(touching_W/intensity,1.0)
 
 
-func _on_TouchSensor_W_body_exited(body):
+func _on_TouchSensor_W_body_exited(_body):
 	touching_W -= 1
 	debugConeTouch_W.color.b = min(touching_W/intensity,1.0)
 
@@ -309,99 +309,3 @@ func _on_DangerSpike_body_entered(body):
 		food_level += 10 #loss of 5
 		body.food_level -= 15
 		body.was_attacked = 1 #bool
-
-#complex movenment backup
-#func _physics_process(delta):
-#	Brain.set_input(0,int(touching_N>0))
-#	Brain.set_input(1,int(touching_E>0))
-#	Brain.set_input(2,int(touching_S>0))
-#	Brain.set_input(3,int(touching_W>0))
-#	Brain.set_input(4,int(sees_agent>0))
-#	Brain.set_input(5,int(sees_food>0))
-#	Brain.set_input(6,int(sees_agent_PR>0))
-#	Brain.set_input(7,int(sees_food_PR>0))
-#	Brain.set_input(8,int(sees_agent_PL>0))
-#	Brain.set_input(9,int(sees_food_PL>0))
-#	Brain.set_input(10,int(food_level>60))#able to repro
-#	Brain.set_input(11,int(food_level<10))#close to death
-#	Brain.set_input(12,food_collected)
-#	food_collected = 0 #only send input once
-#	Brain.update()
-#	var holdoutputs = []
-#	for i in range(7):
-#		holdoutputs.append(Brain.get_output(i))
-#	updateDebugText(holdoutputs, Brain.get_newHidden())
-#	#handle movment
-#	var rotation_dir = Brain.get_output(4)-Brain.get_output(5)
-#	rotation += rotation_dir * ROTATION_SPEED * delta
-#
-#	var axis = get_input_axis(Brain.get_output(0),Brain.get_output(1),Brain.get_output(2),Brain.get_output(3))
-#	if axis == Vector2.ZERO:
-#		apply_friction(ACCELERATION * delta)
-#	else:
-#		apply_movement(axis* ACCELERATION * delta)
-#	#motion = move_and_slide(motion.rotated(rotation))
-#	move_and_slide(motion.rotated(rotation))
-#
-#
-#	#handle reproduction
-#	if food_level > 60 and bool(Brain.get_output(6)):
-#		GlobalSignals.emit_signal("agent_born", self)
-#		children_had_tracker += 1
-#		food_level -= 35 #60 -> 25 + 25 + 10 (each agent is reset, 10 lost to entropy)
-#
-#func get_input_axis(right,left,down,up):
-#	var axis = Vector2.ZERO
-#	axis.x = right - left
-#	axis.y = down - up # y+ is down in this coordinate system
-#	return axis.normalized()
-
-
-# binary logic backup
-#func _physics_process(delta):
-#	#tank controls version
-#	Brain.set_input(0,int(touching_N>0))
-#	Brain.set_input(1,int(touching_E>0))
-#	Brain.set_input(2,int(touching_S>0))
-#	Brain.set_input(3,int(touching_W>0))
-#	Brain.set_input(4,int(sees_agent>0))
-#	Brain.set_input(5,int(sees_food>0))
-#	Brain.set_input(6,int(sees_agent_PR>0))
-#	Brain.set_input(7,int(sees_food_PR>0))
-#	Brain.set_input(8,int(sees_agent_PL>0))
-#	Brain.set_input(9,int(sees_food_PL>0))
-#	Brain.set_input(10,int(food_level>60))#able to repro
-#	Brain.set_input(11,int(food_level<10))#close to death
-#	Brain.set_input(12,food_collected)
-#	food_collected = 0 #only send input once
-#	Brain.update()
-#
-#	var holdoutputs = []
-#	for i in range(Brain.get_size()[1]):
-#		holdoutputs.append(Brain.get_output(i))
-#	updateDebugText(holdoutputs, Brain.get_newHidden())
-#
-#	#handle movment
-#	var L = Brain.get_output(0)
-#	var R = Brain.get_output(1)
-#	var axis = Vector2.ZERO
-#	var rotation_dir = 0
-#	if L+R == 2:
-#		axis.y = -1
-#	else:
-#		rotation_dir = R-L
-#
-#	rotation += rotation_dir * ROTATION_SPEED * delta
-#
-#	if axis == Vector2.ZERO:
-#		apply_friction(ACCELERATION * delta)
-#	else:
-#		apply_movement(axis* ACCELERATION * delta)
-#	move_and_slide(motion.rotated(rotation)) #does not carry over
-#
-#
-#	#handle reproduction
-#	if food_level > 60 and bool(Brain.get_output(2)):
-#		GlobalSignals.emit_signal("agent_born", self)
-#		children_had_tracker += 1
-#		food_level -= 35 #60 -> 25 + 25 + 10 (each agent is reset, 10 lost to entropy)

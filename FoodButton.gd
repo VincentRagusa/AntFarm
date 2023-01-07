@@ -20,6 +20,6 @@ func _ready():
 func _on_Button2_pressed():
 	var pos = null
 	var num = int(textInput.text)
-	for i in range(num):
+	for _i in range(num):
 		pos = Vector2(rng.randi_range(16, 3840-16),rng.randi_range(16, 2160-16))
 		GlobalSignals.emit_signal("food_spawned", pos )

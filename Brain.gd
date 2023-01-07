@@ -83,17 +83,17 @@ func get_newHidden()->Array:
 
 # Called when the node enters the scene tree for the first time.
 func _ready():
-	for i in range(INPUT_SIZE):
+	for _i in range(INPUT_SIZE):
 		inputBuffer.append(0.5)
-	for i in range(OUTPUT_SIZE):
+	for _i in range(OUTPUT_SIZE):
 		outputBuffer.append(0.5)
-	for i in range(RECURRENT_SIZE):
+	for _i in range(RECURRENT_SIZE):
 		recurrentBuffer_old.append(0.5)
 		recurrentBuffer_new.append(0.5)
 
 
 func make_from_genome(genome: Genome):
-	for g in range(OUTPUT_SIZE + RECURRENT_SIZE):
+	for _g in range(OUTPUT_SIZE + RECURRENT_SIZE):
 		var newGate = []
 		#add input wires
 		newGate.append(genome.get_value(0,(INPUT_SIZE + RECURRENT_SIZE)-1))

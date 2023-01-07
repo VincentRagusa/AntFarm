@@ -7,7 +7,7 @@ onready var TextBox = get_parent().get_node("Main_HUD/HUD/right_menu/SystemStats
 var rng = RandomNumberGenerator.new()
 
 var dataFile:String = "./DATA.dat"
-var POP_MAX:int = 500
+var POP_MAX:int = 128
 var popCount:int = 0
 var popLog:Dictionary = {} #format hash:[organisms born with this type, list of children counts, list of food counts]
 var logFile:File = File.new()
@@ -98,10 +98,11 @@ func sortedDictionary(dict:Dictionary)->Array:
 
 
 # Called every frame. 'delta' is the elapsed time since the previous frame.
-func _process(delta):
+func _process(_delta):
 	if popCount < 1:
-		var pos:Vector2 = Vector2(rng.randi_range(64, 3840-64),rng.randi_range(64, 2160-64))
-		handle_agent_spawn(pos)
+		for _i in range(10):
+			var pos:Vector2 = Vector2(rng.randi_range(64, 3840-64),rng.randi_range(64, 2160-64))
+			handle_agent_spawn(pos)
 	var result:String = "Population Size: " + str(popCount) + "\n\nCount Total  ID            ave_Child  ave_Food\n"
 	#for key in popLog.keys():
 	#	result += str(popLog[key][0]) + " " + key.substr(0,7) + " " + str(mean(popLog[key][1])) + " "  + str(mean(popLog[key][2])) + "\n"
@@ -151,9 +152,9 @@ func handle_agent_spawn(pos: Vector2):
 	
 func fileWrite(line:String):
 	if logFile.file_exists(dataFile):
-		logFile.open(dataFile,File.READ_WRITE)
+		var _trash = logFile.open(dataFile,File.READ_WRITE)
 	else:
-		logFile.open(dataFile,File.WRITE_READ)
+		var _trash = logFile.open(dataFile,File.WRITE_READ)
 	logFile.seek_end()
 	logFile.store_line(line)
 	logFile.close()
