@@ -75,10 +75,6 @@ func customComparison(a:Array,b:Array)->bool:
 	var bfoods:Array = b[1][3]
 	
 	if (alife > 0) == (blife > 0): #both alive or both dead (sort groups)
-#		var ma = mean(aoffs)
-#		var mb = mean(boffs)
-		var ma = atot #these replace the mean for alternative sort
-		var mb = btot
 		
 		#this helper function lets you handle ties with ifs
 		var comp = compareWithNull(alife,blife)

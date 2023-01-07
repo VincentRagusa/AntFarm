@@ -8,5 +8,5 @@ script = ExtResource( 1 )
 Food = ExtResource( 2 )
 
 [node name="spawnTimer" type="Timer" parent="."]
-wait_time = 0.06
+wait_time = 0.04
 one_shot = true

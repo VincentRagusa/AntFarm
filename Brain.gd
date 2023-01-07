@@ -70,7 +70,7 @@ func gateLogic(l:int,x:float,y:float) -> float:
 		else:
 			return 0.0
 	else:
-		print("Error in MarkovBrain.gateLogic()")
+		print("Error in MarkovBrain.gateLogic()! Logic ",l," is not defined.")
 		return -1.0
 
 		

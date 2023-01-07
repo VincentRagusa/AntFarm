@@ -41,7 +41,6 @@ func make_mutated_copy()->Array:
 				var from:int = rng.randi_range(0,GENOME_LENGTH-1)
 				var length:int = rng.randi_range(1,GENOME_LENGTH)
 				var to:int = rng.randi_range(0,GENOME_LENGTH-1)
-				var holder:Array = []
 				for offset in range(from,from+length):
 					newSites[(to+offset)%GENOME_LENGTH] = sites[(from+offset)%GENOME_LENGTH]
 	return newSites
