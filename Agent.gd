@@ -3,7 +3,7 @@ class_name Agent
 
 # Declare member variables here. Examples:
 var MAX_SPEED:float = 200
-var ROTATION_SPEED:float = 6
+var ROTATION_SPEED:float = 4
 var ACCELERATION:float = 400
 var motion:Vector2 = Vector2.ZERO
 
@@ -197,7 +197,7 @@ func _on_Vision_body_entered(body):
 		if body.foodColor == "Red":
 			sees_food_red_C += 1
 			debugConeCenter.color.r = min(sees_food_red_C/intensity,1.0)
-		else:
+		if body.foodColor == "Blue":
 			sees_food_blue_C += 1
 			debugConeCenter.color.b = min(sees_food_blue_C/intensity,1.0)
 
@@ -209,7 +209,7 @@ func _on_Vision_body_exited(body):
 		if body.foodColor == "Red":
 			sees_food_red_C -= 1
 			debugConeCenter.color.r = min(sees_food_red_C/intensity,1.0)
-		else:
+		if body.foodColor == "Blue":
 			sees_food_blue_C -= 1
 			debugConeCenter.color.b = min(sees_food_blue_C/intensity,1.0)
 
@@ -232,7 +232,7 @@ func _on_P_left_body_entered(body):
 		if body.foodColor == "Red":
 			sees_food_red_L += 1
 			debugConePL.color.r = min(sees_food_red_L/intensity,1.0)
-		else:
+		if body.foodColor == "Blue":
 			sees_food_blue_L += 1
 			debugConePL.color.b = min(sees_food_blue_L/intensity,1.0)
 
@@ -245,7 +245,7 @@ func _on_P_left_body_exited(body):
 		if body.foodColor == "Red":
 			sees_food_red_L -= 1
 			debugConePL.color.r = min(sees_food_red_L/intensity,1.0)
-		else:
+		if body.foodColor == "Blue":
 			sees_food_blue_L -= 1
 			debugConePL.color.b = min(sees_food_blue_L/intensity,1.0)
 
@@ -258,7 +258,7 @@ func _on_P_right_body_entered(body):
 		if body.foodColor == "Red":
 			sees_food_red_R += 1
 			debugConePR.color.r = min(sees_food_red_R/intensity,1.0)
-		else:
+		if body.foodColor == "Blue":
 			sees_food_blue_R += 1
 			debugConePR.color.b = min(sees_food_blue_R/intensity,1.0)
 
@@ -271,7 +271,7 @@ func _on_P_right_body_exited(body):
 		if body.foodColor == "Red":
 			sees_food_red_R -= 1
 			debugConePR.color.r = min(sees_food_red_R/intensity,1.0)
-		else:
+		if body.foodColor == "Blue":
 			sees_food_blue_R -= 1
 			debugConePR.color.b = min(sees_food_blue_R/intensity,1.0)
 

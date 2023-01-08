@@ -5,15 +5,15 @@ extends KinematicBody2D
 var food_level:int = 5
 var food_onHit:int = 5
 var foodColor:String = "None"
-var switchCost:int = 8
+var switchCost:int = 2
 # Called when the node enters the scene tree for the first time.
 #func _ready():
 #	pass # Replace with function body.
 
 
 # Called every frame. 'delta' is the elapsed time since the previous frame.
-func _process(delta):
-	pass
+#func _process(delta):
+#	pass
 
 
 func _on_Area2D_body_entered(body):

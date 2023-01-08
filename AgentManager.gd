@@ -100,7 +100,7 @@ func sortedDictionary(dict:Dictionary)->Array:
 # Called every frame. 'delta' is the elapsed time since the previous frame.
 func _process(_delta):
 	if popCount < 1:
-		for _i in range(10):
+		for _i in range(100):
 			var pos:Vector2 = Vector2(rng.randi_range(64, 3840-64),rng.randi_range(64, 2160-64))
 			handle_agent_spawn(pos)
 	var result:String = "Population Size: " + str(popCount) + "\n\nCount Total  ID            ave_Child  ave_Food\n"

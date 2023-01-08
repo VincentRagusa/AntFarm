@@ -87,40 +87,40 @@ margin_bottom = 72.0
 [node name="PL" type="Polygon2D" parent="debugVisionCones"]
 position = Vector2( -328, -41.4118 )
 scale = Vector2( 0.852, 0.470588 )
-color = Color( 0, 0, 0, 0.0980392 )
+color = Color( 0, 0, 0, 0.156863 )
 offset = Vector2( 384.977, 104 )
 polygon = PoolVector2Array( -112.676, -288, -18.7798, -322, -18.7798, -83.9999, -28.1695, -66.9999 )
 
 [node name="PR" type="Polygon2D" parent="debugVisionCones"]
 position = Vector2( 0, 7.52942 )
 scale = Vector2( 1, 0.470588 )
-color = Color( 0, 0, 0, 0.0980392 )
+color = Color( 0, 0, 0, 0.156863 )
 polygon = PoolVector2Array( 16, -322, 16, -84.0001, 24, -67, 96, -288 )
 
 [node name="Center" type="Polygon2D" parent="debugVisionCones"]
 position = Vector2( -9.53674e-07, -26.1818 )
 scale = Vector2( 0.5, 0.409091 )
-color = Color( 0, 0, 0, 0.0980392 )
+color = Color( 0, 0, 0, 0.156863 )
 polygon = PoolVector2Array( -32, -288, -32, -24, 32, -24, 32, -288 )
 
 [node name="Touch_N" type="Polygon2D" parent="debugVisionCones"]
 position = Vector2( 0, 32 )
-color = Color( 0, 0, 0, 0.0980392 )
+color = Color( 0, 0, 0, 0.156863 )
 polygon = PoolVector2Array( 0, -48, -20, -56, 0, -64, 20, -56 )
 
 [node name="Touch_E" type="Polygon2D" parent="debugVisionCones"]
 position = Vector2( 24, 16 )
-color = Color( 0, 0, 0, 0.0980392 )
+color = Color( 0, 0, 0, 0.156863 )
 polygon = PoolVector2Array( 0, -36, -8, -16, 0, 4, 8, -16 )
 
 [node name="Touch_S" type="Polygon2D" parent="debugVisionCones"]
 position = Vector2( 0, 48 )
-color = Color( 0, 0, 0, 0.0980392 )
+color = Color( 0, 0, 0, 0.156863 )
 polygon = PoolVector2Array( 0, -32, -20, -24, 0, -16, 20, -24 )
 
 [node name="Touch_W" type="Polygon2D" parent="debugVisionCones"]
 position = Vector2( -48, 0 )
-color = Color( 0, 0, 0, 0.0980392 )
+color = Color( 0, 0, 0, 0.156863 )
 polygon = PoolVector2Array( 16, 0, 24, 20, 32, 0, 24, -20 )
 
 [node name="debugBrainVis" type="Node2D" parent="."]

@@ -6,4 +6,4 @@
 [node name="FoodManager" type="Node2D"]
 script = ExtResource( 1 )
 Food = ExtResource( 2 )
-spawnDelay = 0.05
+spawnDelay = 0.04
