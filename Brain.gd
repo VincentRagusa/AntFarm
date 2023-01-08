@@ -1,7 +1,7 @@
 extends Node2D
 class_name Brain
 
-var INPUT_SIZE:int = 15
+var INPUT_SIZE:int = 18
 var OUTPUT_SIZE:int = 4 #8 for veto controls, 4 for tank
 var RECURRENT_SIZE:int = 15
 

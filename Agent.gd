@@ -27,20 +27,25 @@ var touching_N:int = 0
 var touching_E:int = 0
 var touching_S:int = 0
 var touching_W:int = 0
-var sees_agent:int = 0
-var sees_food:int = 0
-var sees_agent_PL:int = 0
-var sees_food_PL:int = 0
-var sees_agent_PR:int = 0
-var sees_food_PR:int = 0
+var sees_agent_C:int = 0
+var sees_food_red_C:int = 0
+var sees_food_blue_C:int = 0
+var sees_agent_L:int = 0
+var sees_food_red_L:int = 0
+var sees_food_blue_L:int = 0
+var sees_agent_R:int = 0
+var sees_food_red_R:int = 0
+var sees_food_blue_R:int = 0
 var food_level:int = 25
 var food_collision:bool = 0
 var spike_collision:bool = 0
 var was_attacked:bool = 0
+var lastFoodColor:String = "None"
 #-------------------
 # data tracking vars
 var food_eaten_tracker:int = 0
 var children_had_tracker:int = 0
+var switch_counter:int = 0
 
 # fuzzy logic variables
 var intensity:float = -1
@@ -79,17 +84,20 @@ func _physics_process(delta):
 	Brain.set_input(1,min(touching_E/intensity,1.0))
 	Brain.set_input(2,min(touching_S/intensity,1.0))
 	Brain.set_input(3,min(touching_W/intensity,1.0))
-	Brain.set_input(4,min(sees_agent_PL/intensity,1.0))
-	Brain.set_input(5,min(sees_agent/intensity,1.0))
-	Brain.set_input(6,min(sees_agent_PR/intensity,1.0))
-	Brain.set_input(7,min(sees_food_PL/intensity,1.0))
-	Brain.set_input(8,min(sees_food/intensity,1.0))
-	Brain.set_input(9,min(sees_food_PR/intensity,1.0))
-	Brain.set_input(10,int(food_level>60))#able to repro
-	Brain.set_input(11,int(food_level<evolvedHungerThreshold))#close to death
-	Brain.set_input(12,food_collision)
-	Brain.set_input(13,spike_collision)
-	Brain.set_input(14,was_attacked)
+	Brain.set_input(4,min(sees_agent_L/intensity,1.0))
+	Brain.set_input(5,min(sees_agent_C/intensity,1.0))
+	Brain.set_input(6,min(sees_agent_R/intensity,1.0))
+	Brain.set_input(7,min(sees_food_red_L/intensity,1.0))
+	Brain.set_input(8,min(sees_food_red_C/intensity,1.0))
+	Brain.set_input(9,min(sees_food_red_R/intensity,1.0))
+	Brain.set_input(10,min(sees_food_blue_L/intensity,1.0))
+	Brain.set_input(11,min(sees_food_blue_C/intensity,1.0))
+	Brain.set_input(12,min(sees_food_blue_R/intensity,1.0))
+	Brain.set_input(13,int(food_level>60))#able to repro
+	Brain.set_input(14,int(food_level<evolvedHungerThreshold))#close to death
+	Brain.set_input(15,food_collision)
+	Brain.set_input(16,spike_collision)
+	Brain.set_input(17,was_attacked)
 	food_collision = 0 #only send input once
 	spike_collision = 0
 	was_attacked = 0
@@ -183,19 +191,27 @@ func on_spawn():
 
 func _on_Vision_body_entered(body):
 	if body.is_in_group("Agent"):
-		sees_agent += 1
-		debugConeCenter.color.g = min(sees_agent/intensity,1.0)
+		sees_agent_C += 1
+		debugConeCenter.color.g = min(sees_agent_C/intensity,1.0)
 	if body.is_in_group("Food"):
-		sees_food += 1
-		debugConeCenter.color.r = min(sees_food/intensity,1.0)
+		if body.foodColor == "Red":
+			sees_food_red_C += 1
+			debugConeCenter.color.r = min(sees_food_red_C/intensity,1.0)
+		else:
+			sees_food_blue_C += 1
+			debugConeCenter.color.b = min(sees_food_blue_C/intensity,1.0)
 
 func _on_Vision_body_exited(body):
 	if body.is_in_group("Agent"):
-		sees_agent -= 1
-		debugConeCenter.color.g = min(sees_agent/intensity,1.0)
+		sees_agent_C -= 1
+		debugConeCenter.color.g = min(sees_agent_C/intensity,1.0)
 	if body.is_in_group("Food"):
-		sees_food -= 1
-		debugConeCenter.color.r = min(sees_food/intensity,1.0)
+		if body.foodColor == "Red":
+			sees_food_red_C -= 1
+			debugConeCenter.color.r = min(sees_food_red_C/intensity,1.0)
+		else:
+			sees_food_blue_C -= 1
+			debugConeCenter.color.b = min(sees_food_blue_C/intensity,1.0)
 
 
 func _on_FoodUseTimer_timeout():
@@ -210,38 +226,54 @@ func _on_FoodUseTimer_timeout():
 
 func _on_P_left_body_entered(body):
 	if body.is_in_group("Agent"):
-		sees_agent_PL += 1
-		debugConePL.color.g = min(sees_agent_PL/intensity,1.0)
+		sees_agent_L += 1
+		debugConePL.color.g = min(sees_agent_L/intensity,1.0)
 	if body.is_in_group("Food"):
-		sees_food_PL += 1
-		debugConePL.color.r = min(sees_food_PL/intensity,1.0)
+		if body.foodColor == "Red":
+			sees_food_red_L += 1
+			debugConePL.color.r = min(sees_food_red_L/intensity,1.0)
+		else:
+			sees_food_blue_L += 1
+			debugConePL.color.b = min(sees_food_blue_L/intensity,1.0)
 
 
 func _on_P_left_body_exited(body):
 	if body.is_in_group("Agent"):
-		sees_agent_PL -= 1
-		debugConePL.color.g = min(sees_agent_PL/intensity,1.0)
+		sees_agent_L -= 1
+		debugConePL.color.g = min(sees_agent_L/intensity,1.0)
 	if body.is_in_group("Food"):
-		sees_food_PL -= 1
-		debugConePL.color.r = min(sees_food_PL/intensity,1.0)
+		if body.foodColor == "Red":
+			sees_food_red_L -= 1
+			debugConePL.color.r = min(sees_food_red_L/intensity,1.0)
+		else:
+			sees_food_blue_L -= 1
+			debugConePL.color.b = min(sees_food_blue_L/intensity,1.0)
 
 
 func _on_P_right_body_entered(body):
 	if body.is_in_group("Agent"):
-		sees_agent_PR += 1
-		debugConePR.color.g = min(sees_agent_PR/intensity,1.0)
+		sees_agent_R += 1
+		debugConePR.color.g = min(sees_agent_R/intensity,1.0)
 	if body.is_in_group("Food"):
-		sees_food_PR += 1
-		debugConePR.color.r = min(sees_food_PR/intensity,1.0)
+		if body.foodColor == "Red":
+			sees_food_red_R += 1
+			debugConePR.color.r = min(sees_food_red_R/intensity,1.0)
+		else:
+			sees_food_blue_R += 1
+			debugConePR.color.b = min(sees_food_blue_R/intensity,1.0)
 
 
 func _on_P_right_body_exited(body):
 	if body.is_in_group("Agent"):
-		sees_agent_PR -= 1
-		debugConePR.color.g = min(sees_agent_PR/intensity,1.0)
+		sees_agent_R -= 1
+		debugConePR.color.g = min(sees_agent_R/intensity,1.0)
 	if body.is_in_group("Food"):
-		sees_food_PR -= 1
-		debugConePR.color.r = min(sees_food_PR/intensity,1.0)
+		if body.foodColor == "Red":
+			sees_food_red_R -= 1
+			debugConePR.color.r = min(sees_food_red_R/intensity,1.0)
+		else:
+			sees_food_blue_R -= 1
+			debugConePR.color.b = min(sees_food_blue_R/intensity,1.0)
 
 
 
@@ -306,6 +338,11 @@ func _on_TouchSensor_W_body_exited(_body):
 func _on_DangerSpike_body_entered(body):
 	if spike_extended and body.is_in_group("Agent"):
 		spike_collision = true
-		food_level += 10 #loss of 5
 		body.food_level -= 15
 		body.was_attacked = 1 #bool
+		if lastFoodColor != "Agent":
+			food_level -= 15 #switch cost
+			lastFoodColor = "Agent"
+		else:
+			food_level += 10 #loss of 5
+			

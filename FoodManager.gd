@@ -28,6 +28,13 @@ func handle_food_spawn(pos: Vector2):
 	foodInstanceCounter += 1
 	#print("Food Created",foodInstanceCounter)
 	var food_instance = Food.instance()
+	if rng.randf() < 0.5:
+		#red
+		food_instance.foodColor = "Red"
+	else:
+		#blue
+		food_instance.foodColor = "Blue"
+		food_instance.get_node("Sprite").modulate = Color(0,0,1)
 	add_child(food_instance)
 	food_instance.global_position = pos
 
