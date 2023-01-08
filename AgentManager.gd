@@ -6,24 +6,25 @@ onready var TextBox = get_parent().get_node("Main_HUD/HUD/right_menu/SystemStats
 
 var rng = RandomNumberGenerator.new()
 
-var POP_MAX = 500
-var popCount = 0
-var popLog = {} #format hash:[organisms born with this type, list of children counts, list of food counts]
-var logFile = File.new()
+var dataFile:String = "./DATA.dat"
+var POP_MAX:int = 128
+var popCount:int = 0
+var popLog:Dictionary = {} #format hash:[organisms born with this type, list of children counts, list of food counts]
+var logFile:File = File.new()
 
 # Called when the node enters the scene tree for the first time.
 func _ready():
 	pass # Replace with function body.
 
-func arr_join(arr, separator = ""):
-	var output = "";
+func arr_join(arr:Array, separator:String = "")->String:
+	var output:String = "";
 	for s in arr:
 		output += str(s) + separator
 	output = output.left( output.length() - separator.length() )
 	return output
 
-func logOrg(sites):
-	var key = arr_join(sites).sha256_text()
+func logOrg(sites:Array):
+	var key:String = arr_join(sites).sha256_text()
 	if key in popLog:
 		popLog[key][0] += 1
 		popLog[key][1] += 1
@@ -31,8 +32,8 @@ func logOrg(sites):
 		popLog[key] = [1,1,[],[]]
 		
 		
-func remOrg(sites,offspring,food):
-	var key = arr_join(sites).sha256_text()
+func remOrg(sites:Array,offspring:int,food:int):
+	var key:String = arr_join(sites).sha256_text()
 	popLog[key][0] -= 1
 	popLog[key][2].append(offspring)
 	popLog[key][3].append(food)
@@ -41,15 +42,15 @@ func remOrg(sites,offspring,food):
 
 
 
-func mean(array):
-	if len(array) == 0: return null
-	var sum = 0.0
+func mean(array:Array)->float:
+	if len(array) == 0: return float('inf')
+	var sum:float = 0.0
 	for element in array:
 		sum += element
 	return sum / len(array)
 
 
-func compareWithNull(val1, val2):
+func compareWithNull(val1:float, val2:float):
 	if val1 != null and val2 != null:
 		if val1 != val2:
 			return val1 > val2
@@ -63,21 +64,17 @@ func compareWithNull(val1, val2):
 	else:
 		return false
 
-func customComparison(a,b):
-	var alife = a[1][0]
-	var blife = b[1][0]
-	var atot = a[1][1]
-	var btot = b[1][1]
-	var aoffs = a[1][2]
-	var boffs = b[1][2]
-	var afoods = a[1][3]
-	var bfoods = b[1][3]
+func customComparison(a:Array,b:Array)->bool:
+	var alife:int = a[1][0]
+	var blife:int = b[1][0]
+	var atot:int = a[1][1]
+	var btot:int = b[1][1]
+	var aoffs:Array = a[1][2]
+	var boffs:Array = b[1][2]
+	var afoods:Array = a[1][3]
+	var bfoods:Array = b[1][3]
 	
 	if (alife > 0) == (blife > 0): #both alive or both dead (sort groups)
-#		var ma = mean(aoffs)
-#		var mb = mean(boffs)
-		var ma = atot #these replace the mean for alternative sort
-		var mb = btot
 		
 		#this helper function lets you handle ties with ifs
 		var comp = compareWithNull(alife,blife)
@@ -92,8 +89,8 @@ func customComparison(a,b):
 		#one alive one dead, prefer alive
 		return alife > blife
 
-func sortedDictionary(dict):
-	var items = []
+func sortedDictionary(dict:Dictionary)->Array:
+	var items:Array = []
 	for key in dict.keys():
 		items.append([key,dict[key]])
 	items.sort_custom(self, "customComparison")
@@ -101,17 +98,18 @@ func sortedDictionary(dict):
 
 
 # Called every frame. 'delta' is the elapsed time since the previous frame.
-func _process(delta):
+func _process(_delta):
 	if popCount < 1:
-		var pos = Vector2(rng.randi_range(64, 3840-64),rng.randi_range(64, 2160-64))
-		handle_agent_spawn(pos)
-	var result = "Population Size: " + str(popCount) + "\n\nCount Total  ID            ave_Child  ave_Food\n"
+		for _i in range(10):
+			var pos:Vector2 = Vector2(rng.randi_range(64, 3840-64),rng.randi_range(64, 2160-64))
+			handle_agent_spawn(pos)
+	var result:String = "Population Size: " + str(popCount) + "\n\nCount Total  ID            ave_Child  ave_Food\n"
 	#for key in popLog.keys():
 	#	result += str(popLog[key][0]) + " " + key.substr(0,7) + " " + str(mean(popLog[key][1])) + " "  + str(mean(popLog[key][2])) + "\n"
-	var firstBreak = false
+	var firstBreak:bool = false
 	for pair in sortedDictionary(popLog):
-		var key = pair[0]
-		var value = pair[1]
+		var key:String = pair[0]
+		var value:Array = pair[1]
 		if not firstBreak and value[0] == 0:
 			result += "\n"
 			firstBreak = true
@@ -123,23 +121,17 @@ func _process(delta):
 func handle_agent_birth(parent: Agent):
 	if popCount < POP_MAX:
 		popCount += 1
-		var child = Agent.instance()
+		var child:Agent = Agent.instance()
 		add_child(child)
-		var parentHash = arr_join(parent.Genome.sites).sha256_text()
+		var parentHash:String = arr_join(parent.Genome.sites).sha256_text()
 		child.global_position = parent.global_position
-		var newGenomeSites = parent.get_mutated_genome()
-		var childHash = arr_join(newGenomeSites).sha256_text()
+		var newGenomeSites:Array = parent.get_mutated_genome()
+		var childHash:String = arr_join(newGenomeSites).sha256_text()
 		child.on_birth(newGenomeSites)
 		#print(popCount, " \tBABY ", newGenomeSites)
 		
 		logOrg(newGenomeSites)
-		if logFile.file_exists("./antfarm.dat"):
-			logFile.open("./antfarm.dat",File.READ_WRITE)
-		else:
-			logFile.open("./antfarm.dat",File.WRITE_READ)
-		logFile.seek_end()
-		logFile.store_line(parentHash+","+childHash)
-		logFile.close()
+		fileWrite(parentHash+","+childHash)
 	
 func handle_agent_death(agent: Agent):
 	popCount -= 1
@@ -149,18 +141,20 @@ func handle_agent_death(agent: Agent):
 func handle_agent_spawn(pos: Vector2):
 	if popCount < POP_MAX:
 		popCount += 1
-		var agent_instance = Agent.instance()
+		var agent_instance:Agent = Agent.instance()
 		add_child(agent_instance)
 		agent_instance.global_position = pos
 		agent_instance.on_spawn()
-		var childHash = arr_join(agent_instance.Genome.sites).sha256_text()
+		var childHash:String = arr_join(agent_instance.Genome.sites).sha256_text()
 		
 		logOrg(agent_instance.Genome.sites)
-		if logFile.file_exists("./antfarm.dat"):
-			logFile.open("./antfarm.dat",File.READ_WRITE)
-		else:
-			logFile.open("./antfarm.dat",File.WRITE_READ)
-		logFile.seek_end()
-		logFile.store_line("null,"+childHash)
-		logFile.close()
+		fileWrite("null,"+childHash)
 	
+func fileWrite(line:String):
+	if logFile.file_exists(dataFile):
+		var _trash = logFile.open(dataFile,File.READ_WRITE)
+	else:
+		var _trash = logFile.open(dataFile,File.WRITE_READ)
+	logFile.seek_end()
+	logFile.store_line(line)
+	logFile.close()

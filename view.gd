@@ -5,11 +5,11 @@ var mouse_start_pos
 var screen_start_position
 var dragging = false
 
-func _ready():
-	pass 
+#func _ready():
+#	pass 
 
-func _process(delta):
-	pass
+#func _process(delta):
+#	pass
 
 func _input(event):
 	if event.is_action("zoom_in"):

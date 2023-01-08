@@ -1,16 +1,16 @@
 extends Node2D
 class_name Brain
 
-var INPUT_SIZE = 13
-var OUTPUT_SIZE = 3 #7 for veto controls, 3 for tank
-var RECURRENT_SIZE = 8
+var INPUT_SIZE:int = 15
+var OUTPUT_SIZE:int = 4 #8 for veto controls, 4 for tank
+var RECURRENT_SIZE:int = 15
 
-var inputBuffer = []
-var outputBuffer = []
-var recurrentBuffer_old = []
-var recurrentBuffer_new = []
+var inputBuffer:Array = []
+var outputBuffer:Array = []
+var recurrentBuffer_old:Array = []
+var recurrentBuffer_new:Array = []
 
-var gates = []
+var gates:Array = []
 #var gateLogic = [
 #	[[0,0],[0,0]],
 #	[[0,0],[0,1]],
@@ -70,30 +70,30 @@ func gateLogic(l:int,x:float,y:float) -> float:
 		else:
 			return 0.0
 	else:
-		print("Error in MarkovBrain.gateLogic()")
+		print("Error in MarkovBrain.gateLogic()! Logic ",l," is not defined.")
 		return -1.0
 
 		
 
-func get_size():
+func get_size()->Array:
 	return [INPUT_SIZE, OUTPUT_SIZE, RECURRENT_SIZE]
 
-func get_newHidden():
+func get_newHidden()->Array:
 	return recurrentBuffer_new
 
 # Called when the node enters the scene tree for the first time.
 func _ready():
-	for i in range(INPUT_SIZE):
-		inputBuffer.append(0)
-	for i in range(OUTPUT_SIZE):
-		outputBuffer.append(0)
-	for i in range(RECURRENT_SIZE):
-		recurrentBuffer_old.append(0)
-		recurrentBuffer_new.append(0)
+	for _i in range(INPUT_SIZE):
+		inputBuffer.append(0.5)
+	for _i in range(OUTPUT_SIZE):
+		outputBuffer.append(0.5)
+	for _i in range(RECURRENT_SIZE):
+		recurrentBuffer_old.append(0.5)
+		recurrentBuffer_new.append(0.5)
 
 
 func make_from_genome(genome: Genome):
-	for g in range(OUTPUT_SIZE + RECURRENT_SIZE):
+	for _g in range(OUTPUT_SIZE + RECURRENT_SIZE):
 		var newGate = []
 		#add input wires
 		newGate.append(genome.get_value(0,(INPUT_SIZE + RECURRENT_SIZE)-1))

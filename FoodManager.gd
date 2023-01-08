@@ -2,25 +2,27 @@ extends Node2D
 
 
 export(PackedScene) var Food
+export(float) var spawnDelay #units: second
 
-onready var spawnTimer = $spawnTimer
+var MIN_FOOD:int = 1000
+var foodInstanceCounter:int = 0
+var offset:int = 64
+var deltaSum:float = 0
 
-var MIN_FOOD = 600
-var foodInstanceCounter = 0
-var offset = 64
+var rng = RandomNumberGenerator.new()
 
 # Called when the node enters the scene tree for the first time.
 func _ready():
-	spawnTimer.start()
+	rng.randomize()
 
 func _process(delta):
-	if spawnTimer.is_stopped() and foodInstanceCounter < MIN_FOOD:
+	deltaSum += delta
+	while deltaSum >= spawnDelay and foodInstanceCounter < MIN_FOOD:
+		deltaSum -= spawnDelay
 		#print("only", foodInstanceCounter, "food left, spawning more")
-		var rng = RandomNumberGenerator.new()
-		rng.randomize()
 		var pos = Vector2(rng.randi_range(offset, 3840-offset),rng.randi_range(offset, 2160-offset))
-		GlobalSignals.emit_signal("food_spawned", pos )
-		spawnTimer.start()
+#		GlobalSignals.emit_signal("food_spawned", pos ) #signaling here may be inefficient
+		handle_food_spawn(pos) 
 
 func handle_food_spawn(pos: Vector2):
 	foodInstanceCounter += 1

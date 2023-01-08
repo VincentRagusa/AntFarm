@@ -2,10 +2,10 @@ extends Node2D
 class_name Genome
 
 # Declare member variables here. Examples:
-var GENOME_LENGTH = 25#(13+7+8)*3+2
-var MUTATION_RATE = 1.0/50.0 #0.005
-var sites = [0]
-var readHead = 0
+var GENOME_LENGTH:int = (15+4+15)*3 + 2
+var MUTATION_RATE:float = 0.005
+var sites:Array = []
+var readHead:int = 0
 
 
 # Called when the node enters the scene tree for the first time.
@@ -17,7 +17,7 @@ func randomize_genome():
 	var rng = RandomNumberGenerator.new()
 	rng.randomize()
 	sites = []
-	for i in range(GENOME_LENGTH):
+	for _i in range(GENOME_LENGTH):
 		sites.append(rng.randi_range(0,255))
 
 
@@ -25,18 +25,27 @@ func set_genome(newSites):
 	sites = newSites
 
 
-func make_mutated_copy():
+func make_mutated_copy()->Array:
 	var rng = RandomNumberGenerator.new()
 	rng.randomize()
 	var newSites = [] + sites #shitty way to copy an array
 	for i in range(GENOME_LENGTH): #TODO this is terribly inefficient
 		if rng.randf() <= MUTATION_RATE:
-			var choice = rng.randi_range(0,1)
-			if  choice == 0:
+			var choice = rng.randi_range(0,2)
+			if  choice == 0:#point offset
 				newSites[i] += rng.randi_range(-5,5) #uniform offset mutation
-				newSites[i] %= 255
-			elif choice == 1:
+				while newSites[i] > 255:
+					newSites[i] -= 256
+				while newSites[i] < 0:
+					newSites[i] += 256
+			elif choice == 1:#point random
 				newSites[i] = rng.randi_range(0,255)
+			elif choice == 2: #copy (insert-delete)
+				var from:int = rng.randi_range(0,GENOME_LENGTH-1)
+				var length:int = rng.randi_range(1,GENOME_LENGTH)
+				var to:int = rng.randi_range(0,GENOME_LENGTH-1)
+				for offset in range(from,from+length):
+					newSites[(to+offset)%GENOME_LENGTH] = sites[(from+offset)%GENOME_LENGTH]
 	return newSites
 
 
