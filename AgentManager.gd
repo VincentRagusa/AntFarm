@@ -7,10 +7,12 @@ onready var TextBox = get_parent().get_node("Main_HUD/HUD/right_menu/SystemStats
 var rng = RandomNumberGenerator.new()
 
 var dataFile:String = "./DATA.dat"
-var POP_MAX:int = 128
+var POP_MAX:int = 256
 var popCount:int = 0
 var popLog:Dictionary = {} #format hash:[organisms born with this type, list of children counts, list of food counts]
 var logFile:File = File.new()
+var birthQueue = []
+
 
 # Called when the node enters the scene tree for the first time.
 func _ready():
@@ -99,13 +101,29 @@ func sortedDictionary(dict:Dictionary)->Array:
 
 # Called every frame. 'delta' is the elapsed time since the previous frame.
 func _process(_delta):
+	#auto spawn to speed up initial search
 	if popCount < 1:
 		for _i in range(100):
 			var pos:Vector2 = Vector2(rng.randi_range(64, 3840-64),rng.randi_range(64, 2160-64))
 			handle_agent_spawn(pos)
+			
+	#birth Queue
+	if popCount < POP_MAX and len(birthQueue)>0:
+		popCount += 1
+		var parent = birthQueue.pop_front()
+		var parentHash:String = parent[0]
+		var newGenomeSites:Array = parent[1]
+		var pos:Vector2 = parent[2]
+		var child:Agent = Agent.instance()
+		add_child(child)
+		child.global_position = pos
+		var childHash:String = arr_join(newGenomeSites).sha256_text()
+		child.on_birth(newGenomeSites)
+		logOrg(newGenomeSites)
+		fileWrite(parentHash+","+childHash)
+			
+	#text print out
 	var result:String = "Population Size: " + str(popCount) + "\n\nCount Total  ID            ave_Child  ave_Food\n"
-	#for key in popLog.keys():
-	#	result += str(popLog[key][0]) + " " + key.substr(0,7) + " " + str(mean(popLog[key][1])) + " "  + str(mean(popLog[key][2])) + "\n"
 	var firstBreak:bool = false
 	for pair in sortedDictionary(popLog):
 		var key:String = pair[0]
@@ -115,23 +133,15 @@ func _process(_delta):
 			firstBreak = true
 		result += str(value[0]) + "        " + str(value[1]) + "       " + key.substr(0,7) + "  " + str(mean(value[2])).substr(0,6) + "       "  + str(mean(value[3])).substr(0,6) + "\n"
 	TextBox.text = result
-	#ItemList.add_item(result)
 	
 
+
 func handle_agent_birth(parent: Agent):
-	if popCount < POP_MAX:
-		popCount += 1
-		var child:Agent = Agent.instance()
-		add_child(child)
-		var parentHash:String = arr_join(parent.Genome.sites).sha256_text()
-		child.global_position = parent.global_position
-		var newGenomeSites:Array = parent.get_mutated_genome()
-		var childHash:String = arr_join(newGenomeSites).sha256_text()
-		child.on_birth(newGenomeSites)
-		#print(popCount, " \tBABY ", newGenomeSites)
-		
-		logOrg(newGenomeSites)
-		fileWrite(parentHash+","+childHash)
+	var parentHash:String = arr_join(parent.Genome.sites).sha256_text()
+	var newGenomeSites:Array = parent.get_mutated_genome()
+	var spawnAt:Vector2 = parent.global_position
+	birthQueue.append([parentHash,newGenomeSites,spawnAt])
+	
 	
 func handle_agent_death(agent: Agent):
 	popCount -= 1

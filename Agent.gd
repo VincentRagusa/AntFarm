@@ -340,9 +340,9 @@ func _on_DangerSpike_body_entered(body):
 		spike_collision = true
 		body.food_level -= 15
 		body.was_attacked = 1 #bool
-		if lastFoodColor != "Agent":
-			food_level -= 15 #switch cost
-			lastFoodColor = "Agent"
-		else:
-			food_level += 10 #loss of 5
+#		if lastFoodColor != "Agent":
+#			food_level -= 15 #switch cost
+#			lastFoodColor = "Agent"
+#		else:
+		food_level += 10 #loss of 5
 			
