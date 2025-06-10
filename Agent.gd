@@ -119,14 +119,15 @@ func _physics_process(delta):
 	rotation += rotation_dir * ROTATION_SPEED * delta
 	
 	if rotation_dir == 0.0:
-		apply_friction(ACCELERATION * delta)
+		if R + L == 0.0: #inverse tank, all forward == stop, no output == forward
+			apply_friction(ACCELERATION * delta)
 	else:
 		apply_movement(Vector2(0.0, abs(rotation_dir) - 1.0) * ACCELERATION * delta)
 	
 	move_and_slide(motion.rotated(rotation))
 	
 	# Handle reproduction and spikes
-	if food_level > 60 and Brain.get_output(2) >= TWO_THIRDS:
+	if food_level > 60 and Brain.get_output(2) >= ONE_THIRD:
 		GlobalSignals.emit_signal("agent_born", self)
 		children_had_tracker += 1
 		food_level -= 35
@@ -327,7 +328,7 @@ func _on_DangerSpike_body_entered(body):
 		body.food_level -= 15
 		body.was_attacked = 1 #bool
 		if lastFoodColor != "Agent":
-			food_level -= 5 #switch cost
+			food_level -= 6 #switch cost
 			lastFoodColor = "Agent"
 		else:
 			food_level += 10 #loss of 5

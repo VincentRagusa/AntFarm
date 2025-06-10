@@ -16,7 +16,7 @@ var popLog:Dictionary = {} # format: hash:[current_count, total_count, children_
 var logFile:File = File.new()
 var birthQueue:Array = []
 var _last_update_time = 0.0
-var _update_interval = 1.0 # Update stats every 0.2 seconds
+var _update_interval = 5.0 # Update stats every 0.2 seconds
 
 func _ready():
 	rng.randomize()

@@ -5,7 +5,7 @@ extends KinematicBody2D
 var food_level:int = 5
 var food_onHit:int = 5
 var foodColor:String = "None"
-var switchCost:int = 10 #3 works
+var switchCost:int = 6 #3 works
 # Called when the node enters the scene tree for the first time.
 #func _ready():
 #	pass # Replace with function body.
