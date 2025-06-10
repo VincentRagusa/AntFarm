@@ -1,145 +1,124 @@
 extends Node2D
 class_name Brain
 
-var INPUT_SIZE:int = 18
-var OUTPUT_SIZE:int = 4 #8 for veto controls, 4 for tank
-var RECURRENT_SIZE:int = 15
+# Constants
+const INPUT_SIZE:int = 21
+const OUTPUT_SIZE:int = 4  # 8 for veto controls, 4 for tank
+const RECURRENT_SIZE:int = 15
 
+# Buffers
 var inputBuffer:Array = []
 var outputBuffer:Array = []
 var recurrentBuffer_old:Array = []
 var recurrentBuffer_new:Array = []
 
+# Gates
 var gates:Array = []
-#var gateLogic = [
-#	[[0,0],[0,0]],
-#	[[0,0],[0,1]],
-#	[[0,0],[1,0]], # x > y
-#	[[0,0],[1,1]],
-#	[[0,1],[0,0]],
-#	[[0,1],[0,1]],
-#	[[0,1],[1,0]],
-#	[[0,1],[1,1]],
-#	[[1,0],[0,0]],
-#	[[1,0],[0,1]],
-#	[[1,0],[1,0]],
-#	[[1,0],[1,1]],
-#	[[1,1],[0,0]],
-#	[[1,1],[0,1]],
-#	[[1,1],[1,0]],
-#	[[1,1],[1,1]] ]
+
+# Pre-calculated gate logic constants
+const GATE_LOGIC_COUNT:int = 17
+
+func _ready():
+	# Initialize buffers with default values
+	inputBuffer.resize(INPUT_SIZE)
+	outputBuffer.resize(OUTPUT_SIZE)
+	recurrentBuffer_old.resize(RECURRENT_SIZE)
+	recurrentBuffer_new.resize(RECURRENT_SIZE)
 	
-func gateLogic(l:int,x:float,y:float) -> float:
-	if l== 0:
-		return 0.0
-	elif l== 1:
-		return (1-x)*(1-y)
-	elif l== 2:
-		return (1-x)*y
-	elif l== 3:
-		return 1-x
-	elif l== 4:
-		return x*(1-y)
-	elif l== 5:
-		return 1-y
-	elif l== 6:
-		return 1-(1-x*(1-y))*(1-(1-x)*y)
-	elif l== 7:
-		return 1-x*y
-	elif l== 8:
-		return x*y
-	elif l== 9:
-		return (1-x*(1-y))*(1-(1-x)*y)
-	elif l== 10:
-		return y
-	elif l== 11:
-		return 1- x*(1-y)
-	elif l== 12:
-		return x
-	elif l== 13:
-		return 1-(1-x)*y
-	elif l== 14:
-		return 1-(1-x)*(1-y)
-	elif l== 15:
-		return 1.0
-	#begin non-boolean gates
-	elif l== 16:
-		# x > y fuzzy
-		if x > y:
-			return x-y
-		else:
-			return 0.0
-	else:
-		print("Error in MarkovBrain.gateLogic()! Logic ",l," is not defined.")
-		return -1.0
+	for i in range(INPUT_SIZE):
+		inputBuffer[i] = 0.5
+	for i in range(OUTPUT_SIZE):
+		outputBuffer[i] = 0.5
+	for i in range(RECURRENT_SIZE):
+		recurrentBuffer_old[i] = 0.5
+		recurrentBuffer_new[i] = 0.5
 
-		
+# Optimized gate logic using direct calculations instead of conditionals where possible
+func gateLogic(l:int, x:float, y:float) -> float:
+	match l:
+		0: return 0.0
+		1: return (1.0 - x) * (1.0 - y)
+		2: return (1.0 - x) * y
+		3: return 1.0 - x
+		4: return x * (1.0 - y)
+		5: return 1.0 - y
+		6: return 1.0 - (1.0 - x * (1.0 - y)) * (1.0 - (1.0 - x) * y)
+		7: return 1.0 - x * y
+		8: return x * y
+		9: return (1.0 - x * (1.0 - y)) * (1.0 - (1.0 - x) * y)
+		10: return y
+		11: return 1.0 - x * (1.0 - y)
+		12: return x
+		13: return 1.0 - (1.0 - x) * y
+		14: return 1.0 - (1.0 - x) * (1.0 - y)
+		15: return 1.0
+		16: return max(x - y, 0.0)  # x > y fuzzy
+		_:
+			printerr("Error in MarkovBrain.gateLogic()! Logic ", l, " is not defined.")
+			return -1.0
 
-func get_size()->Array:
+func get_size() -> Array:
 	return [INPUT_SIZE, OUTPUT_SIZE, RECURRENT_SIZE]
 
-func get_newHidden()->Array:
-	return recurrentBuffer_new
-
-# Called when the node enters the scene tree for the first time.
-func _ready():
-	for _i in range(INPUT_SIZE):
-		inputBuffer.append(0.5)
-	for _i in range(OUTPUT_SIZE):
-		outputBuffer.append(0.5)
-	for _i in range(RECURRENT_SIZE):
-		recurrentBuffer_old.append(0.5)
-		recurrentBuffer_new.append(0.5)
-
+func get_newHidden() -> Array:
+	return recurrentBuffer_new.duplicate()
 
 func make_from_genome(genome: Genome):
-	for _g in range(OUTPUT_SIZE + RECURRENT_SIZE):
-		var newGate = []
-		#add input wires
-		newGate.append(genome.get_value(0,(INPUT_SIZE + RECURRENT_SIZE)-1))
-		newGate.append(genome.get_value(0,(INPUT_SIZE + RECURRENT_SIZE)-1))
-		#add logic table
-		newGate.append(genome.get_value(0,(16+1)-1))
-		gates.append(newGate)
-		
-func update():
+	gates.resize(OUTPUT_SIZE + RECURRENT_SIZE)
 	for i in range(OUTPUT_SIZE + RECURRENT_SIZE):
+		gates[i] = [
+			genome.get_value(0, INPUT_SIZE + RECURRENT_SIZE - 1),
+			genome.get_value(0, INPUT_SIZE + RECURRENT_SIZE - 1),
+			genome.get_value(0, GATE_LOGIC_COUNT - 1)
+		]
+
+func update():
+	var total_gates = OUTPUT_SIZE + RECURRENT_SIZE
+	var input_size = INPUT_SIZE
+	
+	for i in range(total_gates):
 		var gate = gates[i]
-		var input1 = inputBuffer[gate[0]] if gate[0] < INPUT_SIZE else recurrentBuffer_old[gate[0]-INPUT_SIZE]
-		var input2 = inputBuffer[gate[1]] if gate[1] < INPUT_SIZE else recurrentBuffer_old[gate[1]-INPUT_SIZE]
+		var input1_index = gate[0]
+		var input2_index = gate[1]
+		
+		var input1 = inputBuffer[input1_index] if input1_index < input_size else recurrentBuffer_old[input1_index - input_size]
+		var input2 = inputBuffer[input2_index] if input2_index < input_size else recurrentBuffer_old[input2_index - input_size]
+		
+		var result = gateLogic(gate[2], input1, input2)
+		
 		if i < OUTPUT_SIZE:
-#			outputBuffer[i] = gateLogic[gate[2]][input1][input2]
-			outputBuffer[i] = gateLogic(gate[2],input1,input2)
+			outputBuffer[i] = result
 		else:
-#			recurrentBuffer_new[i-OUTPUT_SIZE] = gateLogic[gate[2]][input1][input2]
-			recurrentBuffer_new[i-OUTPUT_SIZE] = gateLogic(gate[2],input1,input2)
+			recurrentBuffer_new[i - OUTPUT_SIZE] = result
+	
 	transfer_recurrent()
 
-func set_input(pos:int,val:float):
+func set_input(pos: int, val: float):
 	inputBuffer[pos] = val
 
-func get_input(pos:int)->float:
+func get_input(pos: int) -> float:
 	return inputBuffer[pos]
 
 func clear_input():
 	for i in range(INPUT_SIZE):
-		inputBuffer[i] = 0
-		
-func get_output(pos:int):
+		inputBuffer[i] = 0.0
+
+func get_output(pos: int) -> float:
 	return outputBuffer[pos]
-	
+
 func clear_output():
-	for o in range(OUTPUT_SIZE):
-		outputBuffer[o] = 0
-		
+	for i in range(OUTPUT_SIZE):
+		outputBuffer[i] = 0.0
+
 func transfer_recurrent():
-	recurrentBuffer_old = [] + recurrentBuffer_new #shitty vector copy
-	
+	# Faster array copy
+	recurrentBuffer_old = recurrentBuffer_new.duplicate()
+
 func clear_recurrent():
-	for r in range(RECURRENT_SIZE):
-		recurrentBuffer_old[r] = 0
-		recurrentBuffer_new[r] = 0
-		
+	for i in range(RECURRENT_SIZE):
+		recurrentBuffer_old[i] = 0.0
+		recurrentBuffer_new[i] = 0.0
+
 func reset_brain():
 	clear_input()
 	clear_output()
