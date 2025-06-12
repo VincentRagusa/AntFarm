@@ -30,7 +30,7 @@ func _on_Area2D_body_entered(body):
 			food_level -= food_onHit
 			body.food_collision = 1 #bool
 			body.lastFoodColor = foodColor
-			print(body.food_level," ",body.switch_counter)
+			#print(body.food_level," ",body.switch_counter)
 			if food_level <= 0:
 				GlobalSignals.emit_signal("food_depleated")
 				queue_free()

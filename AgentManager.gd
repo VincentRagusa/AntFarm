@@ -120,10 +120,23 @@ func _process(_delta):
 		_last_update_time = 0.0
 		_update_stats_display()
 		
+
+const invlog2 = 1.0/log(2)
+func getEntropy():
+	var probs = []
+	var invCount = 1.0/popCount
+	for key in popLog:
+		probs.append(popLog[key][0]*invCount)
+	var entropy = 0.0
+	for prob in probs:
+		if prob > 0.0:
+			entropy -= prob * (log(prob)*invlog2)
+	return entropy
 		
 func _update_stats_display():
+	
 	var result := PoolStringArray()
-	result.append("Population Size: %d\n\nCount Total  ID            ave_Child  ave_Food\n" % popCount)
+	result.append("Population Size: %d  Entropy: %.5f\n\nCount Total  ID            ave_Child  ave_Food\n" % [popCount,getEntropy()])
 	
 	var firstBreak := false
 	for pair in sortedDictionary(popLog):

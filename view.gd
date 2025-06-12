@@ -10,14 +10,17 @@ var dragging = false
 
 #func _process(delta):
 #	pass
+const MIN_ZOOM: float = 0.3
+const MAX_ZOOM: float = 3.0
+const ZOOM_VEL: float = 0.05
 
 func _input(event):
 	if event.is_action("zoom_in"):
-		if $Camera2D.zoom > Vector2(.3,.3):
-			$Camera2D.zoom = $Camera2D.zoom - Vector2(0.1,0.1)
+		if $Camera2D.zoom > Vector2(MIN_ZOOM,MIN_ZOOM):
+			$Camera2D.zoom = $Camera2D.zoom - Vector2(ZOOM_VEL,ZOOM_VEL)
 	elif event.is_action("zoom_out"):
-		if $Camera2D.zoom < Vector2(2.5,2.5):
-			$Camera2D.zoom = $Camera2D.zoom + Vector2(0.1,0.1)
+		if $Camera2D.zoom < Vector2(MAX_ZOOM,MAX_ZOOM):
+			$Camera2D.zoom = $Camera2D.zoom + Vector2(ZOOM_VEL,ZOOM_VEL)
 	elif event.is_action("drag"):
 		if event.is_pressed():
 			mouse_start_pos = event.position
